@@ -8,7 +8,7 @@ struct Observation {
 }
 
 impl Observation {
-    fn new(first: usize, second: usize, previous_observation: Option<Observation>) -> Observation {
+    fn new(first: usize, second: usize, previous_observation: Option<Self>) -> Self {
         let distance = first.abs_diff(second);
         let ordering = second.cmp(&first);
 
@@ -20,7 +20,7 @@ impl Observation {
                 && previous_observation.ordering() == ordering;
         }
 
-        Observation {
+        Self {
             safe,
             levels: (first, second),
         }
