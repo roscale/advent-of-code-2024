@@ -13,25 +13,6 @@ fn main() {
         precedence.entry(left).or_default().insert(right);
     });
 
-    let mut full_precedence: HashMap<usize, HashSet<usize>> = HashMap::new();
-
-    fn propagate(
-        smaller: usize,
-        precedence: &mut HashMap<usize, HashSet<usize>>,
-        full_precedence: &mut HashMap<usize, HashSet<usize>>,
-    ) {
-        let Some(bigger) = precedence.remove(&smaller) else { return };
-        for &b in bigger.iter() {
-            propagate(b, precedence, full_precedence);
-        }
-        full_precedence.entry(smaller).or_default().extend(bigger);
-    }
-
-    let keys = precedence.keys().copied().collect::<Vec<_>>();
-    for smaller in keys {
-        propagate(smaller, &mut precedence, &mut full_precedence);
-    }
-
     let updates: Vec<Vec<usize>> = updates.lines().map(|update|
         update.split(',').map(|page|
             page.parse().unwrap()
@@ -40,7 +21,7 @@ fn main() {
 
     let (correct_updates, mut incorrect_updates): (Vec<_>, Vec<_>) = updates.into_iter().partition(|update|
         update.is_sorted_by(|a, b|
-            full_precedence
+            precedence
                 .get(a)
                 .and_then(|set| set.get(b))
                 .is_some()
@@ -55,7 +36,7 @@ fn main() {
 
     for update in incorrect_updates.iter_mut() {
         update.sort_by(|a, b| {
-            let smaller = full_precedence
+            let smaller = precedence
                 .get(a)
                 .and_then(|set| set.get(b))
                 .is_some();
