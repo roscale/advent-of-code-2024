@@ -47,10 +47,9 @@ fn main() {
         )
     );
 
-    let mut sum = 0;
-    for update in correct_updates {
-        sum += update[update.len() / 2];
-    }
+    let sum: usize = correct_updates.iter()
+        .map(|update| update[update.len() / 2])
+        .sum();
 
     println!("Correct: {}", sum);
 
@@ -69,10 +68,9 @@ fn main() {
         });
     }
 
-    let mut sum = 0;
-    for update in incorrect_updates {
-        sum += update[update.len() / 2];
-    }
+    let sum: usize = incorrect_updates.iter()
+        .map(|update| update[update.len() / 2])
+        .sum();
 
     println!("Incorrect: {}", sum);
 }
