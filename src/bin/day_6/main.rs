@@ -1,14 +1,12 @@
 use rayon::prelude::*;
 use std::collections::HashMap;
 
-#[derive(Copy, Clone)]
 enum GuardState {
     Inside,
     Escaped,
     Stuck,
 }
 
-#[derive(Clone)]
 struct Guard {
     position: (isize, isize),
     direction: (isize, isize),
