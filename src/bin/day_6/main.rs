@@ -10,8 +10,7 @@ enum GuardState {
 
 #[derive(Clone)]
 struct Guard {
-    guard_x: isize,
-    guard_y: isize,
+    position: (isize, isize),
     direction: (isize, isize),
     distinct_positions: HashMap<(isize, isize), (isize, isize)>, // position -> direction
     state: GuardState,
@@ -20,8 +19,7 @@ struct Guard {
 impl Guard {
     fn new(x: isize, y: isize) -> Self {
         Self {
-            guard_x: x,
-            guard_y: y,
+            position: (x, y),
             direction: (0, -1),
             distinct_positions: HashMap::new(),
             state: GuardState::Inside,
@@ -29,20 +27,22 @@ impl Guard {
     }
 
     fn step(&mut self, grid: &Vec<Vec<char>>) {
-        if let Some(&direction) = self.distinct_positions.get(&(self.guard_x, self.guard_y)) {
+        if let Some(&direction) = self.distinct_positions.get(&self.position) {
             if direction == self.direction {
                 self.state = GuardState::Stuck;
                 return;
             }
         }
 
-        self.distinct_positions.entry((self.guard_x, self.guard_y))
+        self.distinct_positions.entry(self.position)
             .or_insert(self.direction);
 
-        let next_x = self.guard_x + self.direction.0;
-        let next_y = self.guard_y + self.direction.1;
+        let next_pos = (
+            self.position.0 + self.direction.0,
+            self.position.1 + self.direction.1,
+        );
 
-        match at(grid, next_x, next_y) {
+        match at(grid, next_pos.0, next_pos.1) {
             Some('#') | Some('O') => {
                 self.direction = match self.direction {
                     (0, -1) => (1, 0),
@@ -53,10 +53,7 @@ impl Guard {
                 };
             }
             None => self.state = GuardState::Escaped,
-            _ => {
-                self.guard_x = next_x;
-                self.guard_y = next_y;
-            }
+            _ => self.position = next_pos,
         };
     }
 }
