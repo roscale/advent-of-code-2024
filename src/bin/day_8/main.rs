@@ -112,13 +112,8 @@ fn main() {
         let direction = (second.0 - first.0, second.1 - first.1);
         let opposite_direction = (-direction.0, -direction.1);
 
-        for antinode in antinodes_in_direction(&grid, second, direction) {
-            antinodes.insert(antinode);
-        }
-
-        for antinode in antinodes_in_direction(&grid, first, opposite_direction) {
-            antinodes.insert(antinode);
-        }
+        antinodes.extend(antinodes_in_direction(&grid, second, direction));
+        antinodes.extend(antinodes_in_direction(&grid, first, opposite_direction));
     }
 
     println!("Part 2: {}", antinodes.len());
