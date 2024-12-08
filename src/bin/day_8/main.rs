@@ -1,6 +1,8 @@
 use itertools::Itertools;
 use std::collections::HashSet;
 use std::iter;
+use std::iter::Scan;
+use std::ops::RangeFrom;
 
 trait Grid {
     fn at(&self, pos: (isize, isize)) -> Option<char>;
@@ -50,6 +52,17 @@ impl<'a> Iterator for GridIterator<'a> {
     }
 }
 
+fn antinodes_in_direction<'a>(
+    grid: &'a Vec<Vec<char>>,
+    start: (isize, isize),
+    direction: (isize, isize),
+) -> impl Iterator<Item=(isize, isize)> + 'a {
+    (0..).scan(start, move |pos, _| {
+        pos.0 += direction.0;
+        pos.1 += direction.1;
+        grid.at(*pos).map(|_| *pos)
+    })
+}
 
 fn main() {
     let input = include_str!("input.txt");
@@ -76,15 +89,14 @@ fn main() {
         let second = pair.1;
 
         let direction = (second.0 - first.0, second.1 - first.1);
-        let antinode_1 = (second.0 + direction.0, second.1 + direction.1);
-        let antinode_2 = (first.0 - direction.0, first.1 - direction.1);
+        let opposite_direction = (-direction.0, -direction.1);
 
-        if grid.at(antinode_1).is_some() {
-            antinodes.insert(antinode_1);
+        if let Some(antinode) = antinodes_in_direction(&grid, second, direction).next() {
+            antinodes.insert(antinode);
         }
 
-        if grid.at(antinode_2).is_some() {
-            antinodes.insert(antinode_2);
+        if let Some(antinode) = antinodes_in_direction(&grid, first, opposite_direction).next() {
+            antinodes.insert(antinode);
         }
     }
 
@@ -98,26 +110,13 @@ fn main() {
         antinodes.insert(second);
 
         let direction = (second.0 - first.0, second.1 - first.1);
+        let opposite_direction = (-direction.0, -direction.1);
 
-        let mut pos = second;
-        let one_way = iter::repeat_with(|| {
-            let antinode = (pos.0 + direction.0, pos.1 + direction.1);
-            pos = antinode;
-            grid.at(antinode).map(|_| antinode)
-        });
-
-        for antinode in one_way.while_some() {
+        for antinode in antinodes_in_direction(&grid, second, direction) {
             antinodes.insert(antinode);
         }
 
-        let mut pos = first;
-        let the_other_way = iter::repeat_with(|| {
-            let antinode = (pos.0 - direction.0, pos.1 - direction.1);
-            pos = antinode;
-            grid.at(antinode).map(|_| antinode)
-        });
-
-        for antinode in the_other_way.while_some() {
+        for antinode in antinodes_in_direction(&grid, first, opposite_direction) {
             antinodes.insert(antinode);
         }
     }
