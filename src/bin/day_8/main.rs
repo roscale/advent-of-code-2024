@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 trait Grid {
     fn at(&self, pos: (isize, isize)) -> Option<char>;
@@ -11,7 +11,8 @@ impl Grid for Vec<Vec<char>> {
         if x < 0 || y < 0 {
             return None;
         }
-        self.get(x as usize).and_then(|row| row.get(y as usize).copied())
+        self.get(x as usize).and_then(|row|
+            row.get(y as usize).copied())
     }
 
     fn grid_iter(&self) -> GridIterator {
@@ -68,14 +69,13 @@ fn main() {
 
     let antennas = grid.grid_iter()
         .filter(|&(cell, _)| cell != '.')
-        .into_group_map_by(|(cell, _)| *cell);
+        .into_grouping_map()
+        .collect::<Vec<_>>();
 
     let antenna_combinations = antennas.iter()
-        .map(|(_, positions)|
-            positions.iter()
-                .map(|pos| pos.1)
-                .combinations(2)
-                .map(|pair| (pair[0], pair[1])))
+        .map(|(_, positions)| positions.iter().copied()
+            .combinations(2)
+            .map(|pair| (pair[0], pair[1])))
         .flatten()
         .collect_vec();
 
