@@ -1,8 +1,5 @@
 use itertools::Itertools;
 use std::collections::HashSet;
-use std::iter;
-use std::iter::Scan;
-use std::ops::RangeFrom;
 
 trait Grid {
     fn at(&self, pos: (isize, isize)) -> Option<char>;
