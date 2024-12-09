@@ -68,11 +68,11 @@ fn main() {
 
     for id in (0..next_id).rev() {
         let file_index = disk_map.iter().rposition(|block| {
-            matches!(block, Block { id: Some(block_id), .. } if *block_id == id)
+            block.id == Some(id)
         }).unwrap();
 
         let free_space_index = disk_map.iter().position(|block| {
-            matches!(block, Block { id: block_id, size } if block_id.is_none() && *size >= disk_map[file_index].size)
+            block.id.is_none() && block.size >= disk_map[file_index].size
         });
 
         if let Some(free_space_index) = free_space_index {
@@ -82,7 +82,10 @@ fn main() {
 
             disk_map[file_index].id = None;
             disk_map[free_space_index].size -= disk_map[file_index].size;
-            disk_map.insert(free_space_index, Block { size: disk_map[file_index].size, id: Some(id) });
+            disk_map.insert(free_space_index, Block {
+                size: disk_map[file_index].size,
+                id: Some(id),
+            });
         }
     }
 
