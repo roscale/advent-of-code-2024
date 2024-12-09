@@ -74,7 +74,7 @@ fn main() {
         }).unwrap();
 
         let free_space_index = disk_map.iter().position(|block| {
-            matches!(block, Block { id: block_id, size } if *block_id == None && *size >= disk_map[file_index].size)
+            matches!(block, Block { id: block_id, size } if block_id.is_none() && *size >= disk_map[file_index].size)
         });
 
         if let Some(free_space_index) = free_space_index {
