@@ -55,7 +55,7 @@ fn main() {
     println!("Part 1: {}", checksum);
 
     let mut disk_map = disk_map.iter().scan((0, true), |(id, is_file), &n| {
-        let ret = Block {
+        let block = Block {
             size: n,
             id: if *is_file { Some(*id) } else { None },
         };
@@ -63,7 +63,7 @@ fn main() {
             *id += 1;
         }
         *is_file = !*is_file;
-        Some(ret)
+        Some(block)
     }).collect::<Vec<_>>();
 
     for id in (0..next_id).rev() {
