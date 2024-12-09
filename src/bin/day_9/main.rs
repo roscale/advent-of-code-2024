@@ -80,7 +80,7 @@ fn main() {
                 continue;
             }
 
-            disk_map[file_index] = Block { id: None, ..disk_map[file_index] };
+            disk_map[file_index].id = None;
             disk_map[free_space_index].size -= disk_map[file_index].size;
             disk_map.insert(free_space_index, Block { size: disk_map[file_index].size, id: Some(id) });
         }
