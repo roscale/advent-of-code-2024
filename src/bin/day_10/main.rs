@@ -69,7 +69,6 @@ fn explore(grid: &Vec<Vec<u8>>, start: (isize, isize), distinct: bool) -> usize 
             if let Some(next_height) = grid.at(next_pos) {
                 if next_height == height + 1 && (distinct || !discovered.contains(&next_pos)) {
                     stack.push(next_pos);
-                    discovered.insert(next_pos);
                 }
             }
         }
