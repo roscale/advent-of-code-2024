@@ -91,11 +91,15 @@ fn main() {
         .filter(|&(cell, _)| cell == 0)
         .collect::<Vec<_>>();
 
-    let score: usize = trailheads.iter().map(|(_, position)| explore(&grid, *position, false)).sum();
+    let score: usize = trailheads.iter()
+        .map(|(_, position)| explore(&grid, *position, false))
+        .sum();
 
     println!("Score: {}", score);
 
-    let rating: usize = trailheads.iter().map(|(_, position)| explore(&grid, *position, true)).sum();
+    let rating: usize = trailheads.iter()
+        .map(|(_, position)| explore(&grid, *position, true))
+        .sum();
 
     println!("Rating: {}", rating);
 }
