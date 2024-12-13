@@ -122,26 +122,15 @@ fn main() {
 
     let mut visited = HashSet::new();
 
-    let cost = grid.grid_iter().fold(0, |acc, (_, pos)| {
+    let (cost_1, cost_2) = grid.grid_iter().fold((0, 0), |(cost_1, cost_2), (_, pos)| {
         if visited.contains(&pos) {
-            return acc;
+            return (cost_1, cost_2);
         }
-        let (area, perimeter, _) = flood_fill(&grid, pos, &mut visited);
-        acc + area * perimeter
+        // Euler's formula in 2D: V - E = 0
+        let (area, perimeter, vertices) = flood_fill(&grid, pos, &mut visited);
+        (cost_1 + area * perimeter, cost_2 + area * vertices)
     });
 
-    println!("Part 1: {}", cost);
-
-    let mut visited = HashSet::new();
-
-    let cost = grid.grid_iter().fold(0, |acc, (_, pos)| {
-        if visited.contains(&pos) {
-            return acc;
-        }
-        let (area, _, vertices) = flood_fill(&grid, pos, &mut visited);
-        // Euler's formula in 2D: V - E = 0 => V = E
-        acc + area * vertices
-    });
-
-    println!("Part 2: {}", cost);
+    println!("Part 1: {}", cost_1);
+    println!("Part 2: {}", cost_2);
 }
