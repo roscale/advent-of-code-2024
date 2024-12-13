@@ -1,7 +1,11 @@
 use regex::Regex;
 
-fn tokens(claw_machines: impl IntoIterator<Item=((f64, f64), (f64, f64), (f64, f64))>) -> usize {
+fn tokens(claw_machines: impl IntoIterator<Item=((usize, usize), (usize, usize), (usize, usize))>) -> usize {
     claw_machines.into_iter().fold(0, |tokens, (button_a, button_b, prize)| {
+        let button_a = (button_a.0 as f64, button_a.1 as f64);
+        let button_b = (button_b.0 as f64, button_b.1 as f64);
+        let prize = (prize.0 as f64, prize.1 as f64);
+
         let r = button_a.0 / button_a.1;
         let b = (prize.0 - r * prize.1) / (button_b.0 - r * button_b.1);
         let a = (prize.0 - b * button_b.0) / button_a.0;
@@ -27,15 +31,15 @@ fn main() {
         let [button_a, button_b] = [line.next().unwrap(), line.next().unwrap()]
             .map(|button| {
                 let button_capture = button_regex.captures(button).unwrap();
-                let x = button_capture.get(1).unwrap().as_str().parse::<f64>().unwrap();
-                let y = button_capture.get(2).unwrap().as_str().parse::<f64>().unwrap();
+                let x = button_capture.get(1).unwrap().as_str().parse::<usize>().unwrap();
+                let y = button_capture.get(2).unwrap().as_str().parse::<usize>().unwrap();
                 (x, y)
             });
 
         let prize = prize_regex.captures(line.next().unwrap()).unwrap();
         let prize = (
-            prize.get(1).unwrap().as_str().parse::<f64>().unwrap(),
-            prize.get(2).unwrap().as_str().parse::<f64>().unwrap(),
+            prize.get(1).unwrap().as_str().parse::<usize>().unwrap(),
+            prize.get(2).unwrap().as_str().parse::<usize>().unwrap(),
         );
 
         (button_a, button_b, prize)
@@ -44,7 +48,7 @@ fn main() {
     println!("Part 1: {}", tokens(claw_machines.iter().copied()));
 
     let claw_machines = claw_machines.into_iter().map(|(button_a, button_b, prize)| {
-        let prize = (prize.0 + 10000000000000.0, prize.1 + 10000000000000.0);
+        let prize = (prize.0 + 10000000000000, prize.1 + 10000000000000);
         (button_a, button_b, prize)
     });
 
