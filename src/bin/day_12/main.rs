@@ -84,7 +84,7 @@ fn flood_fill(grid: &Vec<Vec<char>>, start: (isize, isize), visited: &mut HashSe
         }
 
         for shift in [(-1, -1), (-1, 0), (0, -1), (0, 0)] {
-            let quad_pos = [(0, 0), (0, 1), (1, 0), (1, 0)]
+            let quad_pos = [(0, 0), (0, 1), (1, 0), (1, 1)]
                 .map(|(x, y)| (pos.0 + shift.0 + x, pos.1 + shift.1 + y));
 
             let quad = quad_pos.map(|quad_pos| grid.at(quad_pos));
