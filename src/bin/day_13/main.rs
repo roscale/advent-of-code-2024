@@ -1,7 +1,7 @@
 use regex::Regex;
 
 fn tokens(claw_machines: impl IntoIterator<Item=((f64, f64), (f64, f64), (f64, f64))>) -> usize {
-    claw_machines.into_iter().fold(0, |acc, (button_a, button_b, prize)| {
+    claw_machines.into_iter().fold(0, |tokens, (button_a, button_b, prize)| {
         let r = button_a.0 / button_a.1;
         let b = (prize.0 - r * prize.1) / (button_b.0 - r * button_b.1);
         let a = (prize.0 - b * button_b.0) / button_a.0;
@@ -9,9 +9,9 @@ fn tokens(claw_machines: impl IntoIterator<Item=((f64, f64), (f64, f64), (f64, f
         const EPSILON: f64 = 0.01;
 
         if (a - a.round()).abs() < EPSILON && (b - b.round()).abs() < EPSILON {
-            acc + 3 * a.round() as usize + b.round() as usize
+            tokens + 3 * a.round() as usize + b.round() as usize
         } else {
-            acc
+            tokens
         }
     })
 }
