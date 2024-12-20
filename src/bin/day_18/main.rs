@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
 trait Grid<T> {
@@ -34,10 +33,7 @@ impl<'a, T: Copy> Iterator for GridIterator<'a, T> {
     type Item = (T, (isize, isize));
 
     fn next(&mut self) -> Option<Self::Item> {
-        let Some(cell) = self.grid.at((self.x, self.y)) else {
-            return None;
-        };
-
+        let cell = self.grid.at((self.x, self.y))?;
         let ret = Some((cell, (self.x, self.y)));
 
         self.x += 1;
