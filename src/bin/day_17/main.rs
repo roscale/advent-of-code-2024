@@ -1,15 +1,17 @@
 use std::ops::BitXor;
-use std::thread::sleep;
 use itertools::Itertools;
 
 fn combo(n: usize, registers: &[usize]) -> usize {
-    match n {
+    let a = match n {
         0..=3 => n,
         4 => registers[0],
         5 => registers[1],
         6 => registers[2],
         _ => unreachable!(),
-    }
+    };
+    dbg!(n);
+    dbg!(a);
+    a
 }
 
 fn run(registers: &mut [usize], program: &[usize]) -> Vec<usize> {
@@ -44,6 +46,67 @@ fn run(registers: &mut [usize], program: &[usize]) -> Vec<usize> {
     output
 }
 
+fn run_backwards(program: &[usize]) -> usize {
+    let unrolled_program = unroll_loops(program);
+    let mut registers = vec![0, 0, 0];
+    let mut output_index = program.len();
+
+    if registers[0] == 0 {
+        registers[0] = 1;
+    }
+    
+    for ip in (0..unrolled_program.len()).step_by(2).rev() {
+        let arg = unrolled_program[ip + 1];
+        match unrolled_program[ip] {
+            0 => registers[0] <<= combo(arg, &registers),
+            1 => registers[1] = registers[1].bitxor(arg),
+            2 => {
+                assert!(registers[1] <= 7);
+                registers[1] = 0;
+            }
+            4 => registers[1] = registers[1].bitxor(registers[2]),
+            5 => {
+                output_index -= 1;
+                match arg {
+                    4 => registers[0] = program[output_index],
+                    5 => registers[1] = program[output_index],
+                    6 => registers[2] = program[output_index],
+                    _ => {}
+                }
+            }
+            6 => registers[1] = registers[0] << combo(arg, &registers),
+            7 => registers[2] = registers[0] << combo(arg, &registers),
+            _ => {},
+        }
+    }
+    registers[0]
+}
+
+fn unroll_loops(program: &[usize]) -> Vec<usize> {
+    let mut outputs = 0;
+    let mut unrolled_program = Vec::new();
+
+    let mut ip = 0;
+    while ip < program.len() {
+        match program[ip] {
+            3 => {
+                if outputs == program.len() {
+                    ip += 2;
+                    continue;
+                }
+                ip = program[ip + 1];
+                continue;
+            }
+            5 => outputs += 1,
+            _ => {}
+        }
+        unrolled_program.extend_from_slice(&program[ip..ip + 2]);
+        ip += 2;
+    }
+
+    unrolled_program
+}
+
 fn main() {
     let input = include_str!("input.txt");
 
@@ -59,22 +122,9 @@ fn main() {
         .map(|n| n.parse::<usize>().unwrap())
         .collect::<Vec<_>>();
 
-    let mut regs = registers.clone();
-    // regs[0] = 45000000000000;
-    // regs[0] = a;
-    let output = run(&mut regs, &program);
-    println!("output: {:?}", output);
-    println!("a: {:?}", regs[0]);
-    println!("b: {:?}", regs[1]);
-    println!("c: {:?}", regs[2]);
+    let output = run(&mut registers, &program);
+    println!("Part 1: {}", output.iter().join(","));
 
-    // let mut a = 0;
-    // loop {
-    //     let mut regs = registers.clone();
-    //     regs[0] = a;
-    //     let output = run(&mut regs, &program);
-    //     println!("a: {}, output: {:?}", a, output);
-    //     // sleep(std::time::Duration::from_millis(10));
-    //     a += 1;
-    // }
+    let output = run_backwards(&program);
+    println!("Part 2: {}", output);
 }
