@@ -1,7 +1,8 @@
+#![feature(iter_map_windows)]
+
 use std::collections::{HashMap, HashSet};
 use std::iter;
 use std::ops::BitXor;
-use itertools::Itertools;
 
 fn next(n: usize) -> usize {
     let n = n.bitxor(n * 64) % 16777216;
@@ -16,22 +17,21 @@ fn rand_iterator(seed: usize) -> impl Iterator<Item=usize> {
     })
 }
 
-fn diff_sequence(a: usize, b: usize, c: usize, d: usize, e: usize) -> (isize, isize, isize, isize) {
-    (
-        (b % 10) as isize - (a % 10) as isize,
-        (c % 10) as isize - (b % 10) as isize,
-        (d % 10) as isize - (c % 10) as isize,
-        (e % 10) as isize - (d % 10) as isize,
-    )
+fn diff_sequence(prices: &[usize; 5]) -> [isize; 4] {
+    [
+        prices[1] as isize - prices[0] as isize,
+        prices[2] as isize - prices[1] as isize,
+        prices[3] as isize - prices[2] as isize,
+        prices[4] as isize - prices[3] as isize,
+    ]
 }
 
-fn diff_to_price(seed: usize) -> HashMap<(isize, isize, isize, isize), usize> {
+fn diff_to_price(seed: usize) -> HashMap<[isize; 4], usize> {
     let secret_numbers = iter::once(seed).chain(rand_iterator(seed).take(2000));
-    let five_sliding_window = secret_numbers.tuple_windows::<(_, _, _, _, _)>();
 
-    let diff_and_price = five_sliding_window.map(|(a, b, c, d, e)| {
-        let diff = diff_sequence(a, b, c, d, e);
-        let price = e % 10;
+    let diff_and_price = secret_numbers.map_windows(|five_prices| {
+        let diff = diff_sequence(five_prices);
+        let price = five_prices.last().unwrap() % 10;
         (diff, price)
     });
 
