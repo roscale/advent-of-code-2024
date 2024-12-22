@@ -59,15 +59,13 @@ fn main() {
 
     let most_bananas = all_changes.iter()
         .map(|changes| {
-            let bananas: usize = prices.iter()
+            prices.iter()
                 .map(|(_, prices)| {
                     prices.get(changes).unwrap_or(&0)
                 })
-                .sum();
-
-            (bananas, changes)
+                .sum::<usize>()
         })
-        .max_by_key(|(bananas, _)| *bananas).unwrap().0;
+        .max().unwrap();
 
     println!("Part 2: {:?}", most_bananas);
 }
