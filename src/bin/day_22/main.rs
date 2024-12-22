@@ -9,11 +9,38 @@ fn next(n: usize) -> usize {
     n.bitxor(n * 2048) % 16777216
 }
 
-fn sequence(seed: usize) -> impl Iterator<Item=usize> {
-    (0..2000).scan(seed, |n, _| {
+fn rand_iterator(seed: usize) -> impl Iterator<Item=usize> {
+    (0..).scan(seed, |n, _| {
         *n = next(*n);
         Some(*n)
     })
+}
+
+fn diff_sequence(a: usize, b: usize, c: usize, d: usize, e: usize) -> (isize, isize, isize, isize) {
+    (
+        (b % 10) as isize - (a % 10) as isize,
+        (c % 10) as isize - (b % 10) as isize,
+        (d % 10) as isize - (c % 10) as isize,
+        (e % 10) as isize - (d % 10) as isize,
+    )
+}
+
+fn diff_to_price(seed: usize) -> HashMap<(isize, isize, isize, isize), usize> {
+    let secret_numbers = iter::once(seed).chain(rand_iterator(seed).take(2000));
+    let five_sliding_window = secret_numbers.tuple_windows::<(_, _, _, _, _)>();
+
+    let diff_and_price = five_sliding_window.map(|(a, b, c, d, e)| {
+        let diff = diff_sequence(a, b, c, d, e);
+        let price = e % 10;
+        (diff, price)
+    });
+
+    let mut diff_to_price = HashMap::new();
+    for (diff, price) in diff_and_price {
+        diff_to_price.entry(diff).or_insert(price);
+    }
+
+    diff_to_price
 }
 
 fn main() {
@@ -24,47 +51,28 @@ fn main() {
         .collect::<Vec<_>>();
 
     let sum: usize = seeds.iter()
-        .map(|&seed| {
-            sequence(seed).last().unwrap()
-        })
+        .map(|&seed| rand_iterator(seed).take(2000).last().unwrap())
         .sum();
 
     println!("Part 1: {}", sum);
 
-    let mut all_changes = HashSet::new();
-
-    let prices = seeds.iter()
-        .map(|&seed| {
-            let five_prices = iter::once(seed).chain(sequence(seed)).tuple_windows::<(_, _, _, _, _)>();
-            let changes = five_prices.map(|(a, b, c, d, e)| {
-                let changes = (
-                    (b % 10) as isize - (a % 10) as isize,
-                    (c % 10) as isize - (b % 10) as isize,
-                    (d % 10) as isize - (c % 10) as isize,
-                    (e % 10) as isize - (d % 10) as isize,
-                );
-                (changes, e % 10)
-            });
-
-            let mut prices = HashMap::new();
-
-            for (changes, price) in changes {
-                prices.entry(changes).or_insert(price);
-                all_changes.insert(changes);
-            }
-            
-            prices
-        })
+    let seed_to_diff_to_price = seeds.iter().copied()
+        .map(diff_to_price)
         .collect::<Vec<_>>();
 
-    let most_bananas = all_changes.iter()
-        .map(|changes| {
-            prices.iter()
-                .map(|prices| {
-                    prices.get(changes).unwrap_or(&0)
-                })
-                .sum::<usize>()
-        })
+    let mut all_diffs = HashSet::new();
+    for diff_to_price in &seed_to_diff_to_price {
+        all_diffs.extend(diff_to_price.keys().copied());
+    }
+
+    let diff_to_bananas = |diff| {
+        seed_to_diff_to_price.iter()
+            .map(|prices| prices.get(diff).unwrap_or(&0))
+            .sum::<usize>()
+    };
+
+    let most_bananas = all_diffs.iter()
+        .map(diff_to_bananas)
         .max().unwrap();
 
     println!("Part 2: {:?}", most_bananas);
