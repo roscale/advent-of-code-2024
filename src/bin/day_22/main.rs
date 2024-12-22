@@ -52,15 +52,15 @@ fn main() {
                 prices.entry(changes).or_insert(price);
                 all_changes.insert(changes);
             }
-
-            (seed, prices)
+            
+            prices
         })
         .collect::<Vec<_>>();
 
     let most_bananas = all_changes.iter()
         .map(|changes| {
             prices.iter()
-                .map(|(_, prices)| {
+                .map(|prices| {
                     prices.get(changes).unwrap_or(&0)
                 })
                 .sum::<usize>()
