@@ -19,10 +19,10 @@ fn rand_iterator(seed: usize) -> impl Iterator<Item=usize> {
 
 fn diff_sequence(prices: &[usize; 5]) -> [isize; 4] {
     [
-        prices[1] as isize - prices[0] as isize,
-        prices[2] as isize - prices[1] as isize,
-        prices[3] as isize - prices[2] as isize,
-        prices[4] as isize - prices[3] as isize,
+        prices[1] as isize % 10 - prices[0] as isize % 10,
+        prices[2] as isize % 10 - prices[1] as isize % 10,
+        prices[3] as isize % 10 - prices[2] as isize % 10,
+        prices[4] as isize % 10 - prices[3] as isize % 10,
     ]
 }
 
